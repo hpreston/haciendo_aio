@@ -82,6 +82,22 @@ def translate_line(line, repeat=0):
 
     return r.json()
 
+def send_line(line, number):
+    '''
+    Send the line via SMS Service
+    :param line:
+    :return:
+    '''
+
+    data = {
+        "line": line,
+        "number": number
+    }
+
+    r = requests.post(tropo_server, data=data)
+
+
+
 class Score(Resource):
     '''
     API Resource for main service function.
@@ -117,6 +133,12 @@ class Score(Resource):
         # Print log message.
         print(message)
 
+        # If translation AND phonenumber, attempt to SMS
+        # if translation and api_args["phonenumber"]:
+        #     message = "    Sending SMS Message."
+        #     send_line(translation["translationText"], api_args["phonenumber"])
+        #     print(message)
+
         # Setup return data and status
         return_data = {
             "status": "success",
@@ -142,14 +164,14 @@ if __name__=='__main__':
     parser.add_argument(
         "-p", "--port", help="Port to run API server on.", required=True
     )
-    # parser.add_argument(
-    #     "-t", "--troposerver", help="Address of Tropo Server.", required=True
-    # )
+    parser.add_argument(
+        "-t", "--troposerver", help="Address of Tropo Server.", required=True
+    )
     args = parser.parse_args()
 
     # Set the API Port Variable
     api_port = int(args.port)
-    # tropo_server = args.troposerver
+    tropo_server = args.troposerver
 
     # Start the server
     app.run(debug=True, host='0.0.0.0', port=api_port)
