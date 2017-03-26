@@ -77,8 +77,11 @@ Vagrant.configure("2") do |config|
     source /home/vagrant/venv_haciendo/bin/activate
     pip install -r /vagrant/requirements.txt
 
+    cd /vagrant/api
+    nohup python haciendo_api.py -p 5000 &
+
     cd /vagrant/web
-    nohup python haciendo_web.py &
+    nohup python haciendo_web.py -p 5080 -a http://localhost:5000/api/score &
 
   SHELL
 end

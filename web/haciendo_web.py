@@ -65,12 +65,17 @@ def submit():
             "phonenumber": phonenumber
         }
 
+    except KeyError:        # No Line submitted
+        msg += "Error: Line Missing."
+        pass
+
+    if len(submit_data["line"]) > 0:
         # Try to submit request to API Server
         try:
             # Send request to API Server
             r = requests.post(api_server, json=submit_data)
             # Verify successful request to API Server
-            if r.status_code == 201:
+            if r.status_code == 200:
                 msg += "\nData: {} ".format(r.json())
                 translated_line = json.loads(r.json())["translation"]
             else:
@@ -78,13 +83,10 @@ def submit():
                 msg += "   Status Code: {} \n".format(r.status_code)
                 msg += "   Headers: {} \n".format(r.headers)
                 msg += "   Data: {} \n\n".format(r.text)
+                API_DOWN = True
         except:
             msg += "\nError: API Server Not Available"
             API_DOWN = True
-
-    except KeyError:        # No Line submitted
-        msg += "Error: Line Missing."
-        pass
 
     # Print log details
     print(msg)
