@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="containter">
+    <div class="col-sm-12">
+        <h2>Need help?</h2>
+    <div class="col-sm-offset-2 col-sm-8">
+        <h4>Did you meet the perfect Señorita or Bad Hombre while on your outing to Tijuana,
+            but your Spanish is not quite up for the task of sexy talk?  Never fear, Haciendo will
+            take your best line, translate it to Spanish and automatically text it to your special
+            someone!
+        </h4>
+    </div>
+    </div>
+</div>
+<div>
+<form class="form-horizontal" action="/" method="post">
+  <div class="form-group">
+    <label class="control-label col-sm-2" for="line">Pickup Line:</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="line" placeholder="Your best pickup line.." name="line">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="control-label col-sm-2" for="phonenumber">Phone Number:</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="phonenumber" placeholder="Phone Number to send to." name="phonenumber">
+    </div>
+  </div>
+    <hr>
+  <div class="form-group">
+    <div class="col-sm-12">
+      <button type="submit" class="btn btn-primary btn-xl">Translate and Send!</button>
+    </div>
+  </div>
+</form>
+
+{% if translated_line %}
+<div class="col-sm-offset-2 col-sm-8 well" style="color: #5e5e5e;">
+    <h3>You got game!</h3>
+    <h4>Your message was sent.</h4>
+
+    <strong>Original Line:</strong> {{ original_line }} <br>
+    <strong>Translated Line:</strong> {{ translated_line }} <br>
+    <strong>Phone Number:</strong> {{ phonenumber }}<br>
+</div>
+{% endif %}
+
+{% if API_DOWN %}
+<div class="col-sm-offset-2 col-sm-8 well" style="color: #5e5e5e;">
+    <h2>Oops... There has been a problem. </h2>
+    <h4>
+        Man... we are SOOO sorry, but there has been a problem and
+        I'm afraid we couldn't send your message.
+        It's not you, it's us...<br>
+        (or maybe a little bit you... just kidding, it's definitely us)
+    </h4>
+</div>
+{% endif %}
+
+</div>
+
+{% endblock %}
