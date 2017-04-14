@@ -134,10 +134,10 @@ class Score(Resource):
         print(message)
 
         # If translation AND phonenumber, attempt to SMS
-        # if translation and api_args["phonenumber"]:
-        #     message = "    Sending SMS Message."
-        #     send_line(translation["translationText"], api_args["phonenumber"])
-        #     print(message)
+        if translation and api_args["phonenumber"]:
+            message = "    Sending SMS Message."
+            send_line(translation["translationText"], api_args["phonenumber"])
+            print(message)
 
         # Setup return data and status
         return_data = {
@@ -158,7 +158,7 @@ api.add_resource(Score, "/api/score")
 if __name__=='__main__':
     # Use ArgParse to retrieve command line parameters.
     from argparse import ArgumentParser
-    parser = ArgumentParser("Haciendo Web Server")
+    parser = ArgumentParser("Haciendo API Server")
 
     # Retrieve the port and API server address
     parser.add_argument(
