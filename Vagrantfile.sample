@@ -1,0 +1,134 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://atlas.hashicorp.com/search.
+  config.vm.box = "centos/7"
+
+  # Disable automatic box update checking. If you disable this, then
+  # boxes will only be checked for updates when the user runs
+  # `vagrant box outdated`. This is not recommended.
+  # config.vm.box_check_update = false
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine. In the example below,
+  # accessing "localhost:8080" will access port 80 on the guest machine.
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 5080, host: 15080
+  config.vm.network "forwarded_port", guest: 5000, host: 15000
+  config.vm.network "forwarded_port", guest: 5001, host: 15001
+
+  # Create a private network, which allows host-only access to the machine
+  # using a specific IP.
+  # config.vm.network "private_network", ip: "192.168.33.10"
+
+  # Create a public network, which generally matched to bridged network.
+  # Bridged networks make the machine appear as another physical device on
+  # your network.
+  # config.vm.network "public_network"
+
+  # Share an additional folder to the guest VM. The first argument is
+  # the path on the host to the actual folder. The second argument is
+  # the path on the guest to mount the folder. And the optional third
+  # argument is a set of non-required options.
+  # config.vm.synced_folder "../data", "/vagrant_data"
+
+  config.vm.synced_folder ".", "/vagrant", type: "virtualbox",
+    rsync__exclude: ".git/"
+
+  # Provider-specific configuration so you can fine-tune various
+  # backing providers for Vagrant. These expose provider-specific options.
+  # Example for VirtualBox:
+  #
+  # config.vm.provider "virtualbox" do |vb|
+  #   # Display the VirtualBox GUI when booting the machine
+  #   vb.gui = true
+  #
+  #   # Customize the amount of memory on the VM:
+  #   vb.memory = "1024"
+  # end
+  #
+  # View the documentation for the provider you are using for more
+  # information on available options.
+
+  # Define a Vagrant Push strategy for pushing to Atlas. Other push strategies
+  # such as FTP and Heroku are also available. See the documentation at
+  # https://docs.vagrantup.com/v2/push/atlas.html for more information.
+  # config.push.define "atlas" do |push|
+  #   push.app = "YOUR_ATLAS_USERNAME/YOUR_APPLICATION_NAME"
+  # end
+
+  # Enable provisioning with a shell script. Additional provisioners such as
+  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
+  # documentation for more information about their specific syntax and use.
+  config.vm.provision "shell", inline: <<-SHELL
+    # Install Python 3.5 and other requirements
+    yum -y install https://centos7.iuscommunity.org/ius-release.rpm
+    yum -y install python35u-3.5.3
+    yum -y install python35u-devel
+    yum -y install python-pip
+    yum -y install wget unzip
+
+    # Download and install ngrok for Tropo API
+    wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+    unzip ngrok-stable-linux-amd64.zip
+    ./ngrok http 5001 &
+
+    # Install virtualenv and setup venvs for application
+    pip install virtualenv
+    virtualenv /home/vagrant/venv_haciendo --python=python3.5
+    virtualenv /home/vagrant/venv_haciendo_sms --python=python2.7
+
+    # Prep the SMS Virtual Env
+    source /home/vagrant/venv_haciendo_sms/bin/activate
+    pip install -r /vagrant/sms/requirements.txt
+
+    # Startup SMS Service
+    cd /vagrant/sms
+    # Create NGROK Tunnel for SMS Service
+    SMS_NGROK_ADDRESS="$(python ngrok_inspect.py)"
+    echo "${SMS_NGROK_ADDRESS}"
+
+    # Start sms service, log output to sms_log.log
+    # *** Update the following line with your Tropo User and Password.
+    nohup python haciendo_sms.py -p 5001 -t TROPO_USER -w TROPO_PASS --tropoprefix 1419 --tropourl ${SMS_NGROK_ADDRESS} > sms_log.log 2>&1 &
+    deactivate
+
+    # Prep the Virtual Env for API and Web
+    source /home/vagrant/venv_haciendo/bin/activate
+    pip install -r /vagrant/requirements.txt
+
+    # Start the API Service
+    cd /vagrant/api
+    nohup python haciendo_api.py -p 5000 -t http://localhost:5001/score > api_log.log 2>&1 &
+
+    # Start the Web Service
+    cd /vagrant/web
+    nohup python haciendo_web.py -p 5080 -a http://localhost:5000/api/score > web_log.log 2>&1 &
+
+    deactivate
+
+    echo "*******************************************************"
+    echo "Haciendo Application Started"
+    echo " "
+    echo "Application services running: "
+    jobs
+    echo " "
+    echo "Web running on http://localhost:15080 "
+    echo "API running on http://localhost:15000 "
+    echo "SMS running on http://localhost:15001 "
+    echo "    and mapped to ngrok tunnel ${SMS_NGROK_ADDRESS}"
+    echo "*******************************************************"
+
+
+  SHELL
+end
