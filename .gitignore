@@ -1,3 +1,7 @@
 .idea/
 venv/
 .vagrant/
+api/api_log.log
+sms/sms_log.log
+web/web_log.log
+Vagrantfile
