@@ -170,3 +170,17 @@ vagrant plugin install vagrant-vbguest
 * Enter an English phrase into the form and your own phone number to send the translation via SMS.  
     * **Remember: You are responsible for any SMS messages sent from your Tropo Account.**
 
+# Developer Notes
+
+* Because of the way that ngrok and the SMS service interact to provide the Tropo capabilities, you can't simply `vagrant suspend` and `vagrant resume` and expect the application to restore completely.  The recommended steps to stop and restart are: 
+
+```bash
+# Stop the vagrant box
+vagrant halt
+
+# Re-Start the vagrant box and start the app
+vagrant up --provision 
+
+# You can also restart the running box to clear any issues
+vagrant reload --provision 
+```
