@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Author: Hank Preston <hank.preston@gmail.com>
 Date: March 26, 2017
@@ -15,32 +14,23 @@ running on a single server instance, and "refactor" it to be
 containerized and built in a micro-service fashion.
 
 This is the sms server element of the application.  Written in
-Python and leveraging Flask and FlaskRestful it provides a basic
+Python and leveraging itty and Tropo it provides a basic
 REST API to retrieve job requests and process them.  It leverages
 other APIs including:
 
     - Translation Services from http://www.transltr.org
     - SMS Messaging Services from Tropo via the haciendo_sms service
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 import requests, json, re
 from requests.auth import HTTPBasicAuth
 from itty import *
 from tropo import Tropo, Session
+import unicodedata
 
 tropo_host = "https://api.tropo.com/v1"
 tropo_headers = {}
 tropo_headers["Content-type"] = "application/json"
-
-# ToDo - Convert to Flask from Itty... or find alternative for Python 3.5
-# Unicode errors in P2.7
-# itty doesn't support P3.5
-#
-
-
-
-
-
 
 # ITTY Versions
 # @app.route('/', methods=["POST"])
@@ -49,6 +39,7 @@ def index(request):
     t = Tropo()
 
     # s = Session(request.get_json(force=True))
+    sys.stderr.write("Incoming Request: \n")
     sys.stderr.write(to_unicode(request.body) + "\n")
 
     s = Session(request.body)
@@ -72,17 +63,19 @@ def index(request):
 
 @post('/score')
 def send_line(request):
+    # Retrieve the phone number to send to
     number = request.POST.get("number", "Not found.")
+    # Retrieve the translated line to send
     line = to_unicode(request.POST.get("line", "Not found."))
-    sys.stderr.write("Sending line to: " + number + "\n")
+    # Due to Tropo not supporting non-ASCII chars, convert to ASCII
+    line = unicodedata.normalize("NFKD", line).encode('ascii', 'ignore')
 
-    print(line)
+    sys.stderr.write("Sending '" + line + "' line to: " + number + "\n")
+
+    # Create URL to instantiate session
     api_call = u"/sessions?action=create&token=%s&numberToDial=%s&line=%s" % (demoappmessagetoken, number, line)
-    # api_call = u"/sessions?action=create&token={}&numberToDial={}&line={}".format(demoappmessagetoken, number, )
     u = u'' + tropo_host + api_call
     page = requests.get(u, headers=tropo_headers)
-    print(u"API Call:" + u)
-
 
     # ToDo - For some reason the returned page isn't decoding properly.  Not needed to work, fix later
     # result= page.json()
@@ -115,7 +108,7 @@ def display_tropo_application_number(request):
 @get('/hello/(?P<number>\w+)')
 def send_hello(request, number):
     sys.stderr.write("Sending hello to: " + number + "\n")
-    message = "Hello World!"
+    message = "Hello from Haciendo!"
 
     u = tropo_host + "/sessions?action=create&token=%s&numberToDial=%s&line=%s" % (demoappmessagetoken, number, message)
     page = requests.get(u, headers=tropo_headers)
@@ -136,18 +129,6 @@ def health_check(request):
     ]
     response = Response('Service Up.', headers=headers)
     return response
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # Tropo Utilities
@@ -387,9 +368,6 @@ if __name__ == '__main__':
 
     sys.stderr.write("Tropo Number: " + ", ".join(demoappnumbers) + "\n")
 
-
-
-    # Old itty commands
     # Only run if there is a number available
     if len(demoappnumbers) > 0:
         run_itty(server='wsgiref', host='0.0.0.0', port=sms_port)
