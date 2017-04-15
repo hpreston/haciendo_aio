@@ -90,12 +90,17 @@ Pre-Req List
 
 * [git](https://git-scm.com/downloads) 
 * [Vagrant + Virtual Box](https://www.vagrantup.com/downloads.html)
+    * Pre-download Vagrant box `vagrant box add centos/7 --provider virtualbox`
 * [Docker for X](https://www.docker.com)
 
 
 # Starting the Haciendo All-In-One Application 
 
-* If you haven't already done so, clone the repo locally to your workstation.  It is recommended that you **FORK** the lab source and clone your own version of the repo and not the source repository.  
+* Log into GitHub and create a Fork of the [Haciendo Repo](https://github.com/hpreston/haciendo_aio).  
+
+![](README_FILES/fork.jpg)
+
+* Clone your forked repo locally to your workstation.    
 
 ```bash 
 git clone http://github.com/<YOUR ACCOUNT>/haciendo_aio 
@@ -125,6 +130,9 @@ vagrant plugin install vagrant-vbguest
 ```
 
 * `vagrant up` and start the Application Dev Instance.  Partial output provided below for reference.  
+    * This step can take 3-5 minutes to complete.  
+    * *If you do not have a local copy of the centos/7 box already, this step will automatically download one. This can take several minutes depending on Internet connection speeds.*
+        * Pre-download the box: `vagrant box add centos/7 --provider virtualbox`  
 
 ```bash
 # Output
@@ -158,3 +166,7 @@ vagrant plugin install vagrant-vbguest
     * `sms/sms_log.log`
     * `api/api_log.log`
     * `web/web_log.log`
+
+* Enter an English phrase into the form and your own phone number to send the translation via SMS.  
+    * **Remember: You are responsible for any SMS messages sent from your Tropo Account.**
+
