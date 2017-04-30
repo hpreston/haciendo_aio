@@ -2,7 +2,9 @@
 
 Haciendo is a fun little application designed to be used as part of an Application Refactoring Lab.  In the lab, you will take a "Monolithic Application" where all of the services for the application are installed and running on a single virtual machine, and "refactor" it to break each service into seperate Docker images in a "microservice" architecture.  
 
-The lab guide can be found at [Refactoring Hands-On Lab](). *Lab Guide in Development* 
+The lab guide can be found at [Refactoring Hands-On Lab](https://github.com/hpreston/haciendo_lab).
+
+The application code can be found at [Haciendo Application](https://github.com/hpreston/haciendo_aio).   
 
 This README provides the details on how to startup the initial application in development mode leveraging Vagrant on your local machine.  
 
