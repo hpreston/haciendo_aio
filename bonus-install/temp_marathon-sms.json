@@ -1,0 +1,28 @@
+{
+    "container": {
+        "type": "DOCKER",
+        "docker": {
+            "image": "{{ DOCKER_USER }}/haciendo_sms:latest",
+            "forcePullImage": true,
+            "network": "BRIDGE",
+            "portMappings": [{
+                "containerPort": 5001,
+                "hostPort": 0
+            }]
+        },
+        "forcePullImage": true
+    },
+    "healthChecks": [{
+        "protocol": "TCP",
+        "portIndex": 0
+    }],
+    "id": "/{{ DOCKER_USER }}/haciendo/sms",
+    "instances": 1,
+    "cpus": 0.1,
+    "mem": 32,
+    "env": {
+        "TROPO_USER": "{{ TROPO USER }}",
+        "TROPO_PASS": "{{ TROPO PASS }}",
+        "TROPO_URL": "http://{{ DOCKER_USER }}-haciendo-sms.app.mantldevnetsandbox.com"
+    }
+}
