@@ -5,3 +5,6 @@ api/api_log.log
 sms/sms_log.log
 web/web_log.log
 Vagrantfile
+bonus-install/marathon-api.json
+bonus-install/marathon-sms.json
+bonus-install/marathon-web.json
