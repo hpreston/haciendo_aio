@@ -26,7 +26,7 @@ After starting the application, it will be available at [http://localhost:15080]
 
 In the `api\` directory you will find the API layer for the application.  It is written in Python and leverages Flask and Flask_Restful to create a REST API layer for the application.  
 
-The API Service uses the free translation API provided by [transltr.org](http://www.transltr.org) to convert English -> Spanish.
+The API Service uses the free translation API provided by [Yandex](http://translate.yandex.com) to convert English -> Spanish.  This service, while free, does require an API key to use.  See below for setting up an account.  
 
 It is designed to run with Python 3.5, though may run in other versions of Python.  For convenience, a `requirements.txt` file is included in the application directory.  
 
@@ -87,6 +87,10 @@ Pre-Req List
 * [Docker Hub](https://hub.docker.com) - You will need a free account with Docker Hub.
 * [Cisco Tropo](https://tropo.com) - You will need a free account with Tropo.  
   * Your account needs to be enabled for **sending** SMS Messages.  You can request this by sending an email to [support@tropo.com](mailto:support@tropo.com).  This can take 1-2 business days so be sure to send this email in advance of completing the lab.  
+* [Yandex Translate API](https://api.yandex.com/translate/) - You will need an account and free API key for the Yandex Service
+    * Go to [https://api.yandex.com/translate/](https://api.yandex.com/translate/) and click to get a "Free API Key".  
+    * Sign-up and copy your key to a text file to keep handy
+    * Keys can be found after sign-up at [https://tech.yandex.com/keys/](https://tech.yandex.com/keys/)
 
 ### Software Installed on Workstation 
 
@@ -120,10 +124,19 @@ cp Vagrantfile.sample Vagrantfile
   * *Optional:  Change the `--tropoprefix XXXX` value to a different area code.  But note that not all area codes are supported.  Check Tropo dev docs for details.*
 
 ```
-# Start sms service, log output to sms_log.log
+    # Start sms service, log output to sms_log.log
     # *** Update the following line with your Tropo User and Password.
     nohup python haciendo_sms.py -p 5001 -t TROPO_USER -w TROPO_PASS --tropoprefix 1419 --tropourl ${SMS_NGROK_ADDRESS} > sms_log.log 2>&1 &
 ```
+
+* Open Vagrantfile and add your Yandex Key to the configuration to start the API Service.  Around line 112 in the Vagrantfile
+    * **NOTE: DO NOT ADD THEM TO `Vagrantfile.sample`**
+
+```
+    # Set the Yandex Key
+    # *** Update the following line with your Yandex Key
+    YANDEX_KEY="YOUR_KEY"
+```    
 
 * Configure Vagrant to install Virtual Box Additions at boot.  This is needed to keep the application directory synced between your local workstation and the VM that is running the application.  
 
