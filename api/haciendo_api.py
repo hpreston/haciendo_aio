@@ -18,7 +18,7 @@ Python and leveraging Flask and FlaskRestful it provides a basic
 REST API to retrieve job requests and process them.  It leverages
 other APIs including:
 
-    - Translation Services from http://www.transltr.org
+    - “Powered by Yandex.Translate” http://translate.yandex.com/.
     - SMS Messaging Services from Tropo via the haciendo_sms service
 """
 
@@ -44,6 +44,9 @@ api_parser.add_argument("phonenumber",
                      help="The phone number to SMS the message to."
                      )
 
+# API key for Yandex Translation Service
+yandex_key = ""
+
 def translate_line(line, repeat=0):
     '''
     Function to translate a line from English to Spanish.
@@ -56,20 +59,14 @@ def translate_line(line, repeat=0):
     if repeat > 2: return False
 
     # The API used for translation
-    translate_api = "http://www.transltr.org/api/translate"
-
-    # API submission data
-    data = {
-            "text": line,
-            "from": "en",
-            "to": "es"
-           }
+    translate_api = "https://translate.yandex.net/api/v1.5/tr.json/translate?key={}&lang={}&text={}".format(yandex_key, "en-es", line)
 
     # Try to submit request to Translation Service
     try:
         # Send request to API Server
         print("    Sending translation request.")
-        r = requests.post(translate_api, data=data)
+        r = requests.get(translate_api)
+        # print(r.json())
 
         # Verify successful request to API Server, it not try again
         if r.status_code != 200:
@@ -118,7 +115,7 @@ class Score(Resource):
 
         # Attempt to translate the line
         translation = translate_line(api_args["line"])
-        message = "    Translation = '{}'".format(translation["translationText"])
+        message = "    Translation = '{}'".format(translation["text"][0])
 
         # In case of an error in translation
         if not translation:
@@ -136,7 +133,7 @@ class Score(Resource):
         # If translation AND phonenumber, attempt to SMS
         if translation and api_args["phonenumber"]:
             message = "    Sending SMS Message."
-            send_line(translation["translationText"], api_args["phonenumber"])
+            send_line(translation["text"][0], api_args["phonenumber"])
             print(message)
 
         # Setup return data and status
@@ -145,7 +142,7 @@ class Score(Resource):
             "message": "success",
             "line": api_args["line"],
             "phonenumber": api_args["phonenumber"],
-            "translation": translation["translationText"]
+            "translation": translation["text"][0]
            }
         return_status = 200
 
@@ -167,11 +164,15 @@ if __name__=='__main__':
     parser.add_argument(
         "-t", "--troposerver", help="Address of Tropo Server.", required=True
     )
+    parser.add_argument(
+        "-y", "--yandexkey", help="API Key for Yandex Service.", required=True
+    )
     args = parser.parse_args()
 
     # Set the API Port Variable
     api_port = int(args.port)
     tropo_server = args.troposerver
+    yandex_key = args.yandexkey
 
 
     # Start the server
