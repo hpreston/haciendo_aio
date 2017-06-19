@@ -107,9 +107,13 @@ Vagrant.configure("2") do |config|
     source /home/vagrant/venv_haciendo/bin/activate
     pip install -r /vagrant/requirements.txt
 
+    # Set the Yandex Key
+    # *** Update the following line with your Yandex Key
+    YANDEX_KEY="YOUR_KEY"
+
     # Start the API Service
     cd /vagrant/api
-    nohup python haciendo_api.py -p 5000 -t http://localhost:5001/score > api_log.log 2>&1 &
+    nohup python haciendo_api.py -p 5000 -t http://localhost:5001/score -t ${YANDEX_KEY} > api_log.log 2>&1 &
 
     # Start the Web Service
     cd /vagrant/web
